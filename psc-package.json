@@ -1,0 +1,13 @@
+{
+    "name": "purescript-propel",
+    "set": "psc-0.11.7",
+    "source": "https://github.com/purescript/package-sets.git",
+    "depends": [
+        "arraybuffer-types",
+        "st",
+        "psci-support",
+        "console",
+        "eff",
+        "prelude"
+    ]
+}
