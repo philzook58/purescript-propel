@@ -1,0 +1,26 @@
+{
+  "name": "purescript-propel",
+  "version": "0.1.0",
+  "description": "purescript bindings to propel ml",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/philzook58/purescript-propel.git"
+  },
+  "author": "Philip Zucker",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/philzook58/purescript-propel/issues"
+  },
+  "homepage": "https://github.com/philzook58/purescript-propel#readme",
+  "dependencies": {
+    "npm": "^5.7.1",
+    "propel": "^3.1.0"
+  }
+}

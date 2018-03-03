@@ -1,20 +1,15 @@
 module Main where
 
-import Prelude
+import Prelude hiding (add)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
-
+import Unsafe.Coerce
+import Data.Tensor
+import Data.ST.Tensor
+import Control.Monad.ST
 --foreign import data Shape :: Type
-type Shape = Array Int
-data DeviceType = GPU | CPU
-type Seed = Int ? -- is it an int?
 
-foreign import zeros :: Array Int -> Tensor Number
-foreign import fill :: Array Int -> Number -> Tensor Number
-foreign import eye :: Array Int -> Tensor Number
-foreign import randn :: Shape -> Seed -> Tensor Number
-foreign import linspace :: Number -> Number -> Int -> Tensor Number -- start stop Num
-foreign import range :: Number -> Number -> Number -> Tensor Number -- I think. start stop and delta
+{-
 
 -- No not Free. That would allow different array depth in each entry... Is that right? No. Free is what I want
 -- 
@@ -80,6 +75,7 @@ instance IsDType Float32
 -- destroy reference is running the ST monad
 -- gc :: forall h r. STRef h (Tensor Number) -> Eff (st :: ST h | r) Unit
 
+-}
 {-
 instance eqTensor :: Eq (Tensor Number) where
    eq = runST 
@@ -134,8 +130,48 @@ module Data.Propel.ST.Tensor where
 
 
 -- getDataF32 :: Tensor Number -> TypedFloat32Array
-
+squareexample :: Tensor Number
+squareexample = pureST do
+                            y <- unsafeThaw (fill 3.2 [2,2])
+                            square y
+                            freeze y
+{-
+reshapeexample :: Tensor Number
+reshapeexample = pureST do 
+                            y <- unsafeThaw (fill 3.2 [4,4])
+                            reshape [2,2,2,2] y
+                            freeze y
+-}
 
 main :: forall e. Eff (console :: CONSOLE | e) Unit
 main = do
   log "Hello sailor!"
+
+  log $ toString $ zeros [2,2]
+  log $ toString $ ones [2,2]
+  log $ toString $ fill 3.2 [2,3] 
+  log $ toString $ eye 7
+  log $ toString $ range 1 9
+  log $ toString $ deltarange 1 7 2
+  log $ toString $ linspace 1.343 0.32432 7
+  log $ toString $ randn [3,2]
+  --_ <- pure $ tensor [2.0,2.0,4.0,3.0]
+  log $ show $ shape $ randn [2,3]
+  log $ toString $ tensor [2.0,2.0,4.0,3.0]
+  log $ toString $ tensor2 [[2.0,2.0],[4.0,3.0]]
+  log $ toString $ squareexample
+  --log $ toString $ reshapeexample
+  log $ toString $ reshape [3,2] $ fill 3.2 [2,3] 
+  let y = fill 3.2 [2,3] 
+  let z = fill 3.2 [2,3]
+  q <- pure $ add y z 
+  log $ toString $ add y z
+  log $ toString $ y
+  log $ toString $ z
+  log $ toString $ dot (tensor2 [[2.0,0.0],[0.0,2.0]] ) (tensor2 [[4.0,0.0],[0.0,6.0]] )
+  log $ toString $ reduceSum [0] true (eye 3)
+  log $ toString $ reduceSum [1] true (eye 3)
+  --log $ toString t
+  
+
+
