@@ -1,11 +1,11 @@
 module Main where
 
-import Prelude hiding (add)
+import Prelude hiding (add, div)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Unsafe.Coerce
 import Data.Tensor
-import Data.ST.Tensor
+--import Data.ST.Tensor
 import Control.Monad.ST
 --foreign import data Shape :: Type
 
@@ -128,13 +128,14 @@ module Data.Propel.ST.Tensor where
 -- hmm. But map will be unsafe. So not a Functor.
 -- I can't actually support map anyhow
 
-
+{-
 -- getDataF32 :: Tensor Number -> TypedFloat32Array
 squareexample :: Tensor Number
 squareexample = pureST do
                             y <- unsafeThaw (fill 3.2 [2,2])
                             square y
                             freeze y
+-}
 {-
 reshapeexample :: Tensor Number
 reshapeexample = pureST do 
@@ -159,7 +160,7 @@ main = do
   log $ show $ shape $ randn [2,3]
   log $ toString $ tensor [2.0,2.0,4.0,3.0]
   log $ toString $ tensor2 [[2.0,2.0],[4.0,3.0]]
-  log $ toString $ squareexample
+  --log $ toString $ squareexample
   --log $ toString $ reshapeexample
   log $ toString $ reshape [3,2] $ fill 3.2 [2,3] 
   let y = fill 3.2 [2,3] 
@@ -171,6 +172,11 @@ main = do
   log $ toString $ dot (tensor2 [[2.0,0.0],[0.0,2.0]] ) (tensor2 [[4.0,0.0],[0.0,6.0]] )
   log $ toString $ reduceSum [0] true (eye 3)
   log $ toString $ reduceSum [1] true (eye 3)
+  log $ toString $ argmin 0 (eye 3)
+  log $ toString $ div (eye 3) (fill 2.0 [3,3])
+  log $ toString $ equal (eye 3) (eye 3) 
+
+
   --log $ toString t
   
 
