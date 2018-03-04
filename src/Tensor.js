@@ -1,7 +1,8 @@
 // src/Math.js
 "use strict";
 
-//const propel = require("propel");
+const propel = require("propel");
+/*
 try {
 	var propel = require("propel-linux-gpu");
 }
@@ -15,7 +16,7 @@ catch(err){
 	var propel = require("propel");
 }
 }
-
+*/
 
 // this is not documented correctly. There is no tensor objct in propel
 // or something isn't trnalsating between typecript right? Or I installed an old package?
@@ -102,11 +103,6 @@ exports.reduceLogSumExpImpl = function(semiring){ return function(axes, keepdims
 
 
 exports.dotImpl = function(semiring){ return function(x,y) { return x.dot(y) }; };
-
-
-
-
-//exports.reshapeImpl = function(shape,t) { return function() { t.reshape(shape); }; };
 
 exports.castImpl = function(dtype,t) { return function() { t.cast(dtype); }; };
 

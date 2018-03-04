@@ -3,13 +3,11 @@
     "set": "psc-0.11.7",
     "source": "https://github.com/purescript/package-sets.git",
     "depends": [
-        "aff",
         "dom",
         "quickcheck",
         "unsafe-coerce",
         "functions",
         "arraybuffer-types",
-        "st",
         "psci-support",
         "console",
         "eff",

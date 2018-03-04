@@ -1,9 +1,11 @@
 module Data.Tensor 
    ( Tensor
+   , DType(..)
+   , Shape
+   , DeviceType(..)
+
    , eye
    , fill	
-   , Shape
-   , DType
    , ones
    , randn
    , range
@@ -15,14 +17,14 @@ module Data.Tensor
    , zeros
 
    , abs
-   , add
+   , addT
    , argmin
    , argmax
    , cast
    , concat
    , cosh
    , dataSync
-   , div
+   , divT
    , dot
    , dtype
    , equal
@@ -33,7 +35,7 @@ module Data.Tensor
    , less
    , lessEqual
    , log
-   , mul
+   , mulT
    , neg
    , onesLike
 
@@ -46,9 +48,6 @@ module Data.Tensor
    , shape
    , sinh
    , square
-
-
-
    , toString
    , transpose
    , zerosLike
@@ -62,6 +61,7 @@ import Prelude ((<<<), class Semiring, class Ring, class Show, class EuclideanRi
 type Shape = Array Int
 data DeviceType = GPU | CPU
 data DType = UInt8 | Float32 | Bool | Int32 | Error
+
 
 instance showDType :: Show DType where
 	show Float32 = "float32" 
@@ -100,8 +100,8 @@ linspace start stop num = runFn3 linspaceImpl start stop num
 foreign import abs :: Tensor Number -> Tensor Number
 
 foreign import addImpl :: forall a. (Semiring a) => Fn2 (Tensor a) (Tensor a) (Tensor a)
-add :: forall a. (Semiring a) => Tensor a -> Tensor a -> Tensor a
-add x y = runFn2 addImpl x y
+addT :: forall a. (Semiring a) => Tensor a -> Tensor a -> Tensor a
+addT x y = runFn2 addImpl x y
 
 foreign import argminImpl :: forall a. Fn2 Int (Tensor a) (Tensor a)
 argmin :: forall a. Int -> Tensor a -> Tensor a
@@ -125,8 +125,8 @@ foreign import cosh :: Tensor Number -> Tensor Number
 foreign import dataSync :: Tensor Number -> Float32Array
 
 foreign import divImpl :: forall a. (Semiring a) => Fn2 (Tensor a) (Tensor a) (Tensor a)
-div :: forall a. (EuclideanRing a) => Tensor a -> Tensor a -> Tensor a
-div x y = runFn2 divImpl x y
+divT :: forall a. (EuclideanRing a) => Tensor a -> Tensor a -> Tensor a
+divT x y = runFn2 divImpl x y
 
 foreign import dtypeImpl :: forall a. Tensor a -> String
 dtypeStr :: String -> DType
@@ -168,8 +168,8 @@ foreign import log :: Tensor Number -> Tensor Number
 foreign import logSoftMax :: Tensor Number -> Tensor Number
 
 foreign import mulImpl :: forall a. (Semiring a) => Fn2 (Tensor a) (Tensor a) (Tensor a)
-mul :: forall a. (Semiring a) => Tensor a -> Tensor a -> Tensor a
-mul x y = runFn2 mulImpl x y
+mulT :: forall a. (Semiring a) => Tensor a -> Tensor a -> Tensor a
+mulT x y = runFn2 mulImpl x y
 
 foreign import neg :: forall a. (Ring a) => Tensor a -> Tensor a
 
@@ -238,7 +238,6 @@ slice begin end = runFn3 sliceImpl begin end
 
 
 
-
 foreign import transpose :: forall a. Tensor a -> Tensor a
 
 
@@ -247,7 +246,6 @@ foreign import shape :: forall a. Tensor a -> Shape
 foreign import rank :: forall a. Tensor a -> Int
 
 foreign import zerosLike :: forall a. Tensor a -> Tensor Number
-
 
 
 
