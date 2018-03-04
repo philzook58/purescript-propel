@@ -1,7 +1,21 @@
 // src/Math.js
 "use strict";
 
-const propel = require("propel");
+//const propel = require("propel");
+try {
+	var propel = require("propel-linux-gpu");
+}
+catch(err){
+	try {
+
+	var propel = require("propel-mac");
+}
+catch(err){
+	console.log("Falling back to basic propel. Install appropriate propel for your system for better performance.");
+	var propel = require("propel");
+}
+}
+
 
 // this is not documented correctly. There is no tensor objct in propel
 // or something isn't trnalsating between typecript right? Or I installed an old package?

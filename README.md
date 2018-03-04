@@ -1,4 +1,4 @@
 # purescript-propel
 
-Nothing to see here.
-Very Very Very much so a WIP.
+Purescript bindings to the Propel ML tensor library. Closely follows the API to be found here http://propelml.org/docs/.
+If shapes don't make sense, will throw errors. Buyer beware.

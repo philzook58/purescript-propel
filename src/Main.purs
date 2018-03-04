@@ -7,6 +7,8 @@ import Unsafe.Coerce
 import Data.Tensor
 --import Data.ST.Tensor
 import Control.Monad.ST
+import Data.Tensor.Aff
+import Control.Monad.Aff
 --foreign import data Shape :: Type
 
 {-
@@ -175,6 +177,9 @@ main = do
   log $ toString $ argmin 0 (eye 3)
   log $ toString $ div (eye 3) (fill 2.0 [3,3])
   log $ toString $ equal (eye 3) (eye 3) 
+  --d <- launchAff $ getData (eye 3)
+  -- log $ unsafeCoerce d
+  log " hey"
 
 
   --log $ toString t
