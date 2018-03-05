@@ -14,6 +14,21 @@ import Data.Array
 import Data.Tensor.Util
 --import Data.TypedArray
 
+-- I should make a plotly library
+-- only raw import plot functions
+-- and newPlot?
+-- and make the array variants 
+-- and the element vs div string variants.
+
+-- Data.Tensor.Ops.Math
+-- Data.Tensor.Ops.Math.Unary
+-- Data.Tensor.Op.Math.Binary
+-- Data.Tensor.Ops.Natural
+-- Data.Tensor.Constructors
+-- Data.Tensor.Meta
+-- Data.Tensor.Util
+-- Data.Tensor.Types
+-- Data.Tensor reexports all of them
 
 foreign import plotlyImpl :: forall a e. Fn3 String (Array a) (Array a) (Eff (dom :: DOM | e) Unit)
 plotly :: forall a e. String -> Array a -> Array a -> Eff (dom :: DOM | e) Unit
@@ -56,4 +71,5 @@ main = do
   plotT "plot5" x (dg x) 
   heatmapT "plot6" (eye 20)
   surfaceT "plot7" (eye 20)
+
 

@@ -67,6 +67,7 @@ import Data.ArrayBuffer.Types (Float32Array, ArrayView)
 import Data.Function.Uncurried (Fn2, runFn2, Fn3, runFn3)
 import Prelude ((<<<), class Semiring, class Ring, class Show, class EuclideanRing, show)
 
+-- I should delete this instance.
 instance semiringTensor :: Semiring a => Semiring (Tensor a) where
    add = addT
    zero = zeros [1]
@@ -79,6 +80,19 @@ instance ringTensor :: Ring a => Ring (Tensor a) where
 -- | Note that some functions have an appended 'T' to avoid clashes with Prelude
 -- | addT, mulT, divT
 
+
+-- Put this on all contructor routines
+class HasDType a where
+   _dtype :: Proxy a -> DType
+
+instance hasdtypeNumber :: HasDType Number where
+  _dtype _ = Float32
+
+instance hasdtypeInt :: HasDType Int where
+  _dtype _ = Int32
+
+instance hasdtypeBool :: HasDType Boolean where
+  _dtype _ = Bool
 
 type Shape = Array Int
 data DeviceType = GPU | CPU
@@ -125,7 +139,10 @@ linspace :: Number -> Number -> Int -> Tensor Number
 linspace start stop num = runFn3 linspaceImpl start stop num
 
 foreign import abs :: Tensor Number -> Tensor Number
+abs' :: forall a. (Ring a) => Tensor a -> Tensor a
+abs' = abs
 
+-- I should remove the Semiring from the foreign module.
 foreign import addImpl :: forall a. (Semiring a) => Fn2 (Tensor a) (Tensor a) (Tensor a)
 addT :: forall a. (Semiring a) => Tensor a -> Tensor a -> Tensor a
 addT x y = runFn2 addImpl x y
