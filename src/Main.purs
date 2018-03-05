@@ -48,7 +48,7 @@ surface :: forall a e. String -> Array (Array a) -> Eff (dom :: DOM | e) Unit
 surface = runFn2 surfaceImpl
 surfaceT divid z = surface divid (unconcat n (asArray z)) where n = fromMaybe 0 $ (shape z) !! 0
 
-
+-- Wow. I should be using purescript-echarts
 
 main :: forall e. Eff (console :: CONSOLE, dom :: DOM | e) Unit
 main = do
