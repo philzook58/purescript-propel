@@ -6,3 +6,15 @@ Check out test/Main.purs for some example usage
 
 This may be useful for dealing with Typed Array instances:
 https://github.com/jutaro/purescript-typedarray
+
+asArray in particular.
+Lots of other possibly useful stuff not implemented (maps, filters, folds of typed array):
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray
+
+Propel plot is not working. I do not understand how it possibly could actually.
+
+There is a small Plotly shim for plotting.
+
+Checkout index.html with
+```pulp --psc-package serve```
+

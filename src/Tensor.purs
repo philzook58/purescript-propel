@@ -15,7 +15,9 @@ module Data.Tensor
    , tensor
    , tensor2
    , zeros
-
+   
+   , grad 
+   
    , abs
    , addT
    , argmin
@@ -24,6 +26,9 @@ module Data.Tensor
    , concat
    , cosh
    , dataSync
+
+   , asArray
+
    , divT
    , dot
    , dtype
@@ -39,6 +44,7 @@ module Data.Tensor
    , neg
    , onesLike
 
+   , rank
    , relu
    , reverse
    , reduceSum
@@ -47,16 +53,32 @@ module Data.Tensor
    , reshape
    , shape
    , sinh
+   , sigmoid
+   , squeeze
    , square
+   , tanh
    , toString
    , transpose
    , zerosLike
 
    ) where
 
-import Data.ArrayBuffer.Types (Float32Array)
+import Data.ArrayBuffer.Types (Float32Array, ArrayView)
 import Data.Function.Uncurried (Fn2, runFn2, Fn3, runFn3)
 import Prelude ((<<<), class Semiring, class Ring, class Show, class EuclideanRing, show)
+
+instance semiringTensor :: Semiring a => Semiring (Tensor a) where
+   add = addT
+   zero = zeros [1]
+   mul = mulT
+   one = ones [1]
+
+instance ringTensor :: Ring a => Ring (Tensor a) where
+   sub = subT
+
+-- | Note that some functions have an appended 'T' to avoid clashes with Prelude
+-- | addT, mulT, divT
+
 
 type Shape = Array Int
 data DeviceType = GPU | CPU
@@ -75,14 +97,14 @@ foreign import data Tensor :: Type -> Type
 --foreign import tensor :: forall e. Array Number -> Eff e (Tensor Number)
 foreign import eye :: Int -> Tensor Number
 
-foreign import fillImpl :: Fn2 Number Shape (Tensor Number)
-fill :: Number -> Shape -> Tensor Number
+foreign import fillImpl :: forall a. Fn2 a Shape (Tensor a)
+fill :: forall a. a -> Shape -> Tensor a
 fill num shape' = runFn2 fillImpl num shape'
 
-foreign import ones :: Shape -> Tensor Number
-foreign import tensor :: Array Number -> Tensor Number
-foreign import tensor2 :: Array (Array Number) -> Tensor Number
-foreign import zeros :: Shape -> Tensor Number
+foreign import ones :: forall a. Shape -> Tensor a
+foreign import tensor :: forall a. Array a -> Tensor a
+foreign import tensor2 :: forall a. Array (Array a) -> Tensor a
+foreign import zeros :: forall a. Shape -> Tensor a
 foreign import randn :: Shape -> (Tensor Number)
 
 foreign import rangeImpl :: Fn3 Int Int Int (Tensor Int) -- I think. start stop and delta
@@ -92,6 +114,11 @@ range start stop = runFn3 rangeImpl start stop 1
 
 deltarange :: Int -> Int -> Int -> Tensor Int 
 deltarange start stop delta = runFn3 rangeImpl start stop delta
+
+
+-- | To be honest I'm a little confused about the Propel gradient api.
+foreign import grad :: (Tensor Number -> Tensor Number) -> (Tensor Number -> Tensor Number)
+
 
 foreign import linspaceImpl :: Fn3 Number Number Int (Tensor Number) -- start stop Num
 linspace :: Number -> Number -> Int -> Tensor Number
@@ -122,7 +149,12 @@ concat axis t1 t2 = runFn3 concatImpl axis t1 t2
 foreign import cosh :: Tensor Number -> Tensor Number
 
 -- https://github.com/jutaro/purescript-typedarray
-foreign import dataSync :: Tensor Number -> Float32Array
+--foreign import dataSync :: Tensor Number -> Float32Array
+foreign import dataSync :: forall a b. Tensor a -> ArrayView b
+
+-- | To be used sparingly. Copies out data into new array. Not native Propel functionality
+-- | May return booleans as Integers?
+foreign import asArray :: forall a. Tensor a -> Array a
 
 foreign import divImpl :: forall a. (Semiring a) => Fn2 (Tensor a) (Tensor a) (Tensor a)
 divT :: forall a. (EuclideanRing a) => Tensor a -> Tensor a -> Tensor a
@@ -213,7 +245,7 @@ instance semiringTensor :: Semiring a => Semiring (Tensor a) where
    mul x y = runFn2 addImpl x y
    zero = zeros
    -}
-
+foreign import rank :: forall a. Tensor a -> Int
 
 
 foreign import relu :: Tensor Number -> Tensor Number
@@ -243,7 +275,10 @@ foreign import transpose :: forall a. Tensor a -> Tensor a
 
 foreign import toString :: forall a. Tensor a -> String
 foreign import shape :: forall a. Tensor a -> Shape
-foreign import rank :: forall a. Tensor a -> Int
+
+foreign import subImpl :: forall a. (Ring a) => Fn2 (Tensor a) (Tensor a) (Tensor a)
+subT :: forall a. (Ring a) => Tensor a -> Tensor a -> Tensor a
+subT x y = runFn2 subImpl x y
 
 foreign import zerosLike :: forall a. Tensor a -> Tensor Number
 

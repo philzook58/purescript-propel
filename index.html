@@ -1,11 +1,50 @@
 <html>
 
 <head>
-	<script type="text/javascript" src="/app.js"></script>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<script src="https://unpkg.com/propel@3.1.0"></script>
+	<script type="text/javascript">
+		var require = function (str){
+			if(str=="propel"){
+				return propel;
+			}
+			else{
+				console.log("Could not require package")
+				return null;
+			}
+		}
+	</script>
+
+	
 </head>
 
 <body>
 	
-</body>
+	<div class="intro-notebook">
+		<div class="notebook-cell" id="cell1">
+			<div class="output-container">
+				<div class="output" id="output1">
+				</div> 
+			</div>
+		</div>
 
+		
+
+	</div>
+	<div id="#">
+	</div>
+	<div id="#1">
+	</div>
+	<div id="plot1"> </div>
+	<div id="plot2"> </div>
+	<div id="plot3"> </div>
+	<div id="plot4"> </div>
+	<div id="plot5"> </div>
+	<div id="plot6"> </div>
+	<div id="plot7"> </div>
+	<div id="plot8"> </div>
+	<div id="plot9"> </div>
+	<div id="plot10"> </div>
+</body>
+	<script type="text/javascript" src="/app.js"></script>
 </html>

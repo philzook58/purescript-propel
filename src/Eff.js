@@ -17,7 +17,8 @@ catch(err){
 }
 }
 */
-exports.plot = function(ts) {  return function () { propel.plot.apply(this, ts); }; };
+exports.plot = function(ts) {  return function () { propel.plot(ts[0], ts[1]); console.log(ts); }; };
+	//propel.plot.apply(this, ts); }; };
 
 exports.imshow = function(t) {  return function () { propel.imshow(t); }; };
 

@@ -1,0 +1,6 @@
+[submodule "purescript-typedarray"]
+	path = purescript-typedarray
+	url = https://github.com/jutaro/purescript-typedarray.git
+[submodule "src/purescript-typedarray"]
+	path = src/purescript-typedarray
+	url = https://github.com/jutaro/purescript-typedarray.git

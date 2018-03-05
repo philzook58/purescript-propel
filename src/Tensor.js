@@ -35,14 +35,21 @@ exports.rangeImpl = propel.range;
 exports.fillImpl = propel.fill;
 exports.randn = propel.randn;
 
+exports.grad = propel.grad
+
 exports.abs = function(t) { return t.abs(); };
+
+
 
 exports.addImpl = function(semiring){ return function(x,y) { return x.add(y) }; };
 exports.argminImpl = function(axis,t) { return t.argmin(axis); };
 exports.argmaxImpl = function(axis,t) { return t.argmax(axis); };
 exports.concatImpl = function(axis,t1,t2) { return t1.concat(axis, t2); };
 exports.cosh = function(t) { return  t.cosh(); };
-exports.dataSync = function(t) { return t.dataSync(); };
+exports.dataSync = function(t) { return t.getData(); }; // This is not according to API
+
+exports.asArray = function(t) {return Array.prototype.slice.call(exports.dataSync(t))};
+
 exports.divImpl = function(divisionring){ return function(x,y) { return x.div(y) }; };
 
 exports.equalImpl = function(t1, t2) { return t1.equal(t2); };
@@ -101,7 +108,7 @@ exports.reduceMaxImpl = function(semiring){ return function(axes, keepdims, t) {
 exports.reduceLogSumExpImpl = function(semiring){ return function(axes, keepdims, t) { return t.reduceLogSumExp(axes,keepdims) }; };
 
 
-
+exports.subImpl = function(ring){ return function(x,y) { return x.sub(y) }; };
 
 exports.dotImpl = function(semiring){ return function(x,y) { return x.dot(y) }; };
 
