@@ -1,7 +1,7 @@
-module Util where
+module Data.Tensor.Util where
 
 import Data.Tensor
-import Data.Array (replicate)
+import Data.Array (replicate, take, drop)
 --import Data.List.Lazy hiding (replicate)
 import Prelude
 
@@ -22,6 +22,11 @@ circulant
 
 
 -}
+
+unconcat :: forall a. Int -> Array a -> Array (Array a)
+unconcat n [] = []
+unconcat n xs = [(take n xs)] <> unconcat n (drop n xs) 
+
 
 sadd :: Number -> Tensor Number -> Tensor Number
 sadd = mapT addT

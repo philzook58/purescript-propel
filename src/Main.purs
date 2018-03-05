@@ -9,6 +9,9 @@ import DOM
 import Data.Function.Uncurried
 import Unsafe.Coerce
 import Math
+import Data.Maybe
+import Data.Array
+import Data.Tensor.Util
 --import Data.TypedArray
 
 
@@ -18,6 +21,19 @@ plotly = runFn3 plotlyImpl
 
 plotT :: forall a e. String -> Tensor a -> Tensor a -> Eff (dom :: DOM | e) Unit
 plotT divid x y = plotly divid (asArray x) (asArray y)
+
+
+foreign import heatmapImpl :: forall a e. Fn2 String (Array (Array a)) (Eff (dom :: DOM | e) Unit)
+heatmap :: forall a e. String -> Array (Array a) -> Eff (dom :: DOM | e) Unit
+heatmap = runFn2 heatmapImpl
+heatmapT divid z = heatmap divid (unconcat n (asArray z)) where n = fromMaybe 0 $ (shape z) !! 0
+
+foreign import surfaceImpl :: forall a e. Fn2 String (Array (Array a)) (Eff (dom :: DOM | e) Unit)
+surface :: forall a e. String -> Array (Array a) -> Eff (dom :: DOM | e) Unit
+surface = runFn2 surfaceImpl
+surfaceT divid z = surface divid (unconcat n (asArray z)) where n = fromMaybe 0 $ (shape z) !! 0
+
+
 
 main :: forall e. Eff (console :: CONSOLE, dom :: DOM | e) Unit
 main = do
@@ -38,4 +54,6 @@ main = do
   let g x = mulT (mulT x x) x :: (Tensor Number)
   let dg = grad g
   plotT "plot5" x (dg x) 
+  heatmapT "plot6" (eye 20)
+  surfaceT "plot7" (eye 20)
 
