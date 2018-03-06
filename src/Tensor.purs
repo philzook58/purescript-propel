@@ -3,6 +3,8 @@ module Data.Tensor
    , DType(..)
    , Shape
    , DeviceType(..)
+   , class HasDType
+   , _dtype
 
    , eye
    , fill	
@@ -66,7 +68,7 @@ module Data.Tensor
 import Data.ArrayBuffer.Types (Float32Array, ArrayView)
 import Data.Function.Uncurried (Fn2, runFn2, Fn3, runFn3)
 import Prelude ((<<<), class Semiring, class Ring, class Show, class EuclideanRing, show)
-
+import Type.Proxy (Proxy)
 -- I should delete this instance.
 instance semiringTensor :: Semiring a => Semiring (Tensor a) where
    add = addT
@@ -81,7 +83,7 @@ instance ringTensor :: Ring a => Ring (Tensor a) where
 -- | addT, mulT, divT
 
 
--- Put this on all contructor routines
+-- Put this on all constructor routines
 class HasDType a where
    _dtype :: Proxy a -> DType
 
@@ -116,6 +118,9 @@ fill :: forall a. a -> Shape -> Tensor a
 fill num shape' = runFn2 fillImpl num shape'
 
 foreign import ones :: forall a. Shape -> Tensor a
+--ones' :: forall a. HasDType a => Shape -> Tensor a
+--ones' shape' = ones shape' {dtype : (show (_dtype (Proxy :: Proxy a)))}
+
 foreign import tensor :: forall a. Array a -> Tensor a
 foreign import tensor2 :: forall a. Array (Array a) -> Tensor a
 foreign import zeros :: forall a. Shape -> Tensor a
@@ -138,9 +143,9 @@ foreign import linspaceImpl :: Fn3 Number Number Int (Tensor Number) -- start st
 linspace :: Number -> Number -> Int -> Tensor Number
 linspace start stop num = runFn3 linspaceImpl start stop num
 
-foreign import abs :: Tensor Number -> Tensor Number
-abs' :: forall a. (Ring a) => Tensor a -> Tensor a
-abs' = abs
+foreign import absImpl :: forall a. Tensor a -> Tensor a
+abs :: forall a. (Ring a) => Tensor a -> Tensor a
+abs = absImpl
 
 -- I should remove the Semiring from the foreign module.
 foreign import addImpl :: forall a. (Semiring a) => Fn2 (Tensor a) (Tensor a) (Tensor a)

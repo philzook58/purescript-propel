@@ -37,7 +37,7 @@ exports.randn = propel.randn;
 
 exports.grad = propel.grad
 
-exports.abs = function(t) { return t.abs(); };
+exports.absImpl = function(t) { return t.abs(); };
 
 
 
