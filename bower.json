@@ -1,0 +1,28 @@
+{
+  "name": "purescript-propel",
+  "homepage": "https://github.com/philzook58/purescript-propel",
+  "authors": [
+    "Philip Zucker"
+  ],
+  "description": "Purescript bindings for Propel tensor library",
+  "main": "",
+  "keywords": [
+    "tensor",
+    "matrix",
+    "vector",
+    "neural"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "purescript-arraybuffer-types": "^2.0.0",
+    "purescript-dom": "^4.15.0",
+    "purescript-functions": "^3.0.0"
+  }
+}
