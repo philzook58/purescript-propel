@@ -1,20 +1,20 @@
 # purescript-propel
 
 Purescript bindings to the Propel ML tensor library. Closely follows the API to be found here http://propelml.org/docs/.
-If shapes don't make sense, will throw errors. Buyer beware.
+
+If shapes don't make sense, will throw errors. Buyer beware. A type indexed library is a WIP.
+
+npm install appropriate version of propel for your computer for tensor bindings. See propel documentation [here](https://github.com/propelml/propel)
+```npm install propel_linux_gpu```
+
 Check out test/Main.purs for some example usage
 
 This may be useful for dealing with Typed Array instances:
 https://github.com/jutaro/purescript-typedarray
 
-asArray in particular.
 Lots of other possibly useful stuff not implemented (maps, filters, folds of typed array):
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray
 
 Propel plot is not working. I do not understand how it possibly could actually.
 
-There is a small Plotly shim for plotting.
-
-Checkout index.html with
-```pulp --psc-package serve```
-
+I have had difficulty browserifying. One can use the Propel cdn instead (see exmaples folder)

@@ -3,25 +3,13 @@ module Test.Main where
 import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
-import Test.QuickCheck
-import Test.QuickCheck.Gen
 import Data.Tensor
 
 
--- I need lots of tests to see if I'm doing ST right.
-
-{-
-arrayOf $ chooseInt 0 4
-genPos :: Gen Int
-genPos = abs `map` (arbitrary :: Gen Int) `suchThat` (_ > 0)
-
-genListOfPos :: Gen (Array Int)
-genListOfPos = vectorOf genPos
--}
 main :: forall e. QC e Unit
 main = do
   -- quickCheck $ forAll genListOfPos \x -> x == (shape $ randn x)
-  log $ toString $ zeros [2,2]
+  log $ toString $ zeros [2,2] :: Tensor Int
   log $ toString $ ones [2,2] :: Tensor Number
   log $ toString $ fill 3.2 [2,3] 
   log $ toString $ eye 7
@@ -30,8 +18,9 @@ main = do
   log $ toString $ linspace 1.343 0.32432 7
   log $ toString $ randn [3,2]
   --_ <- pure $ tensor [2.0,2.0,4.0,3.0]
-  log $ show $ shape $ randn [2,3]
+  log $ show $ shape $ randn [2,3] :: Tensor Number
   log $ toString $ tensor [2.0,2.0,4.0,3.0]
+  log $ toString $ tensor [2,2,4,3]
   log $ toString $ tensor2 [[2.0,2.0],[4.0,3.0]]
   --log $ toString $ squareexample
   --log $ toString $ reshapeexample
@@ -49,4 +38,7 @@ main = do
   log $ toString $ divT (eye 3) (fill 2.0 [3,3])
   log $ toString $ equal (eye 3) (eye 3) 
   log $ toString $ (ones [1,4] :: Tensor Number )
+  log $ toString $ fill 1.0 [1,2]
+  log $ toString $ tensor [true, false]
+  log $ show $ asArray $ tensor [true, false]
 

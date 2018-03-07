@@ -65,27 +65,21 @@ module Data.Tensor
 
    ) where
 
+-- | You may require type annotations, for example
+-- | ```ones :: Tensor Number```
 import Data.ArrayBuffer.Types (Float32Array, ArrayView)
 import Data.Function.Uncurried (Fn2, runFn2, Fn3, runFn3)
 import Prelude ((<<<), class Semiring, class Ring, class Show, class EuclideanRing, show)
 import Type.Proxy (Proxy(..))
--- I should delete this instance.
-{-
-instance semiringTensor :: Semiring a => Semiring (Tensor a) where
-   add = addT
-   zero = zeros [1]
-   mul = mulT
-   one = ones [1]
--}
-{-
-instance ringTensor :: Ring a => Ring (Tensor a) where
-   sub = subT
--}
+
+
 -- | Note that some functions have an appended 'T' to avoid clashes with Prelude
 -- | addT, mulT, divT
 
+-- | Be frightened of Boolean matrices. 
+-- | The propel representation appears to be Integers
 
--- Put this on all constructor routines
+
 class HasDType a where
    _dtype :: Proxy a -> DType
 
@@ -112,11 +106,11 @@ instance showDType :: Show DType where
 
 foreign import data Tensor :: Type -> Type
 
---foreign import tensor :: forall e. Array Number -> Eff e (Tensor Number)
 foreign import eye :: Int -> Tensor Number
 
+
 foreign import fillImpl :: forall a. Fn2 a Shape (Tensor a)
-fill :: forall a. a -> Shape -> Tensor a
+fill :: Number -> Shape -> Tensor Number
 fill num shape' = runFn2 fillImpl num shape'
 
 --foreign import ones :: forall a. Shape -> Tensor a
@@ -124,9 +118,18 @@ foreign import onesImpl :: forall a. Fn2 Shape {dtype :: String } (Tensor a)
 ones :: forall a. Semiring a => HasDType a => Shape -> Tensor a
 ones shape' = runFn2 onesImpl shape' {dtype : (show (_dtype (Proxy :: Proxy a)))}
 
-foreign import tensor :: forall a. Array a -> Tensor a
+
+foreign import tensorImpl :: forall a. Fn2 (Array a) {dtype :: String } (Tensor a)
+tensor :: forall a. HasDType a => (Array a) -> Tensor a
+tensor arr = runFn2 tensorImpl arr {dtype : (show (_dtype (Proxy :: Proxy a)))}
+
 foreign import tensor2 :: forall a. Array (Array a) -> Tensor a
-foreign import zeros :: forall a. Shape -> Tensor a
+
+foreign import zerosImpl :: forall a. Fn2 Shape {dtype :: String } (Tensor a)
+zeros :: forall a. Semiring a => HasDType a => Shape -> Tensor a
+zeros shape' = runFn2 zerosImpl shape' {dtype : (show (_dtype (Proxy :: Proxy a)))}
+
+
 foreign import randn :: Shape -> (Tensor Number)
 
 foreign import rangeImpl :: Fn3 Int Int Int (Tensor Int) -- I think. start stop and delta

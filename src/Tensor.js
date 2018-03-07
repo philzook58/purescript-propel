@@ -1,33 +1,18 @@
-// src/Math.js
 "use strict";
 
 
 const propel = require("propel");
-/*
-try {
-	var propel = require("propel-linux-gpu");
-}
-catch(err){
-	try {
 
-	var propel = require("propel-mac");
-}
-catch(err){
-	console.log("Falling back to basic propel. Install appropriate propel for your system for better performance.");
-	var propel = require("propel");
-}
-}
-*/
 
 // this is not documented correctly. There is no tensor objct in propel
-// or something isn't trnalsating between typecript right? Or I installed an old package?
-exports.tensor = propel.T;
+// or something isn't translating between typescript right? Or I installed an old package?
+exports.tensorImpl = propel.T;
 exports.tensor2 = propel.T;
-//exports.tensor = function(a){ return function() {return propel.tensor(a)}};
+
 //exports.tensor = function(a){ return propel.tensor(a); };
-//console.log(propel);
-exports.zeros = propel.zeros; // function(shape) { return propel.zeros(shape) } ;
-exports.ones = propel.ones;
+
+exports.zerosImpl = propel.zeros;
+//exports.ones = propel.ones;
 
 exports.onesImpl = propel.ones;
 
@@ -41,8 +26,6 @@ exports.randn = propel.randn;
 exports.grad = propel.grad
 
 exports.absImpl = function(t) { return t.abs(); };
-
-
 
 exports.addImpl = function(semiring){ return function(x,y) { return x.add(y) }; };
 exports.argminImpl = function(axis,t) { return t.argmin(axis); };
@@ -97,8 +80,6 @@ exports.rank = function(t) { return t.rank; };
 
 
 exports.zerosLike = function(t) { return t.zerosLike() };
-
-
 
 
 exports.sliceImpl = function(begin, end, t) { return t.slice(begin,end); };
