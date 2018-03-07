@@ -1,6 +1,6 @@
 module Data.Tensor.Eff where
 
-import DOM (DOM)
+--import DOM (DOM)
 import Prelude
 import Control.Monad.Eff (Eff)
 import Data.Tensor (Tensor)

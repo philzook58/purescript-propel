@@ -7,7 +7,7 @@ const propel = require("propel");
 // this is not documented correctly. There is no tensor objct in propel
 // or something isn't translating between typescript right? Or I installed an old package?
 exports.tensorImpl = propel.T;
-exports.tensor2 = propel.T;
+exports.tensor2Impl = propel.T;
 
 //exports.tensor = function(a){ return propel.tensor(a); };
 

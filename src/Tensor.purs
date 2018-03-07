@@ -67,18 +67,16 @@ module Data.Tensor
 
 -- | You may require type annotations, for example
 -- | ```ones :: Tensor Number```
-import Data.ArrayBuffer.Types (Float32Array, ArrayView)
+import Data.ArrayBuffer.Types (ArrayView)
 import Data.Function.Uncurried (Fn2, runFn2, Fn3, runFn3)
-import Prelude ((<<<), class Semiring, class Ring, class Show, class EuclideanRing, show)
+import Prelude ((<<<), class Semiring, class Ring, class Show, class EuclideanRing, show, class Eq)
 import Type.Proxy (Proxy(..))
-
 
 -- | Note that some functions have an appended 'T' to avoid clashes with Prelude
 -- | addT, mulT, divT
 
 -- | Be frightened of Boolean matrices. 
 -- | The propel representation appears to be Integers
-
 
 class HasDType a where
    _dtype :: Proxy a -> DType
@@ -96,7 +94,6 @@ type Shape = Array Int
 data DeviceType = GPU | CPU
 data DType = UInt8 | Float32 | Bool | Int32 | Error
 
-
 instance showDType :: Show DType where
 	show Float32 = "float32" 
 	show Int32 = "int32"
@@ -106,8 +103,10 @@ instance showDType :: Show DType where
 
 foreign import data Tensor :: Type -> Type
 
-foreign import eye :: Int -> Tensor Number
+instance showTensor :: Show (Tensor a) where
+   show = toString
 
+foreign import eye :: Int -> Tensor Number
 
 foreign import fillImpl :: forall a. Fn2 a Shape (Tensor a)
 fill :: Number -> Shape -> Tensor Number
@@ -118,17 +117,18 @@ foreign import onesImpl :: forall a. Fn2 Shape {dtype :: String } (Tensor a)
 ones :: forall a. Semiring a => HasDType a => Shape -> Tensor a
 ones shape' = runFn2 onesImpl shape' {dtype : (show (_dtype (Proxy :: Proxy a)))}
 
-
 foreign import tensorImpl :: forall a. Fn2 (Array a) {dtype :: String } (Tensor a)
 tensor :: forall a. HasDType a => (Array a) -> Tensor a
 tensor arr = runFn2 tensorImpl arr {dtype : (show (_dtype (Proxy :: Proxy a)))}
 
-foreign import tensor2 :: forall a. Array (Array a) -> Tensor a
+foreign import tensor2Impl :: forall a. Fn2 (Array (Array a)) {dtype :: String } (Tensor a)
+tensor2 :: forall a. HasDType a => (Array (Array a)) -> Tensor a
+tensor2 arr = runFn2 tensor2Impl arr {dtype : (show (_dtype (Proxy :: Proxy a)))}
+
 
 foreign import zerosImpl :: forall a. Fn2 Shape {dtype :: String } (Tensor a)
 zeros :: forall a. Semiring a => HasDType a => Shape -> Tensor a
 zeros shape' = runFn2 zerosImpl shape' {dtype : (show (_dtype (Proxy :: Proxy a)))}
-
 
 foreign import randn :: Shape -> (Tensor Number)
 
@@ -140,8 +140,7 @@ range start stop = runFn3 rangeImpl start stop 1
 deltarange :: Int -> Int -> Int -> Tensor Int 
 deltarange start stop delta = runFn3 rangeImpl start stop delta
 
-
--- | To be honest I'm a little confused about the Propel gradient api.
+-- To be honest I'm a little confused about the Propel gradient api.
 foreign import grad :: (Tensor Number -> Tensor Number) -> (Tensor Number -> Tensor Number)
 
 foreign import linspaceImpl :: Fn3 Number Number Int (Tensor Number) -- start stop Num
@@ -183,7 +182,7 @@ foreign import dataSync :: forall a b. Tensor a -> ArrayView b
 -- | May return booleans as Integers?
 foreign import asArray :: forall a. Tensor a -> Array a
 
-foreign import divImpl :: forall a. (Semiring a) => Fn2 (Tensor a) (Tensor a) (Tensor a)
+foreign import divImpl :: forall a. (EuclideanRing a) => Fn2 (Tensor a) (Tensor a) (Tensor a)
 divT :: forall a. (EuclideanRing a) => Tensor a -> Tensor a -> Tensor a
 divT x y = runFn2 divImpl x y
 
@@ -197,10 +196,8 @@ dtypeStr _ = Error
 dtype :: forall a. Tensor a -> DType
 dtype = dtypeStr <<< dtypeImpl
 
-
-
 foreign import equalImpl :: forall a. Fn2 (Tensor a) (Tensor a) (Tensor Boolean)
-equal :: forall a. Tensor a -> Tensor a -> Tensor Boolean
+equal :: forall a. (Eq a) => Tensor a -> Tensor a -> Tensor Boolean
 equal x y = runFn2 equalImpl x y
 
 foreign import exp :: Tensor Number -> Tensor Number
@@ -232,13 +229,11 @@ mulT x y = runFn2 mulImpl x y
 
 foreign import neg :: forall a. (Ring a) => Tensor a -> Tensor a
 
-
 foreign import onesLike :: forall a. Tensor a -> Tensor Number
 
 foreign import sinh :: Tensor Number -> Tensor Number
 
 foreign import sigmoid :: Tensor Number -> Tensor Number
-
 
 foreign import sign :: Tensor Number -> Tensor Number
 
@@ -247,7 +242,6 @@ foreign import square :: forall a. (Semiring a) => Tensor a -> Tensor a -- (Tens
 foreign import squeeze :: forall a. Tensor a -> Tensor a
 
 foreign import tanh :: Tensor Number -> Tensor Number
-
 
 foreign import reduceSumImpl :: forall a. Semiring a => Fn3 (Array Int) Boolean (Tensor a) (Tensor a)
 reduceSum :: forall a. Semiring a => Array Int -> Boolean -> Tensor a -> Tensor a
@@ -259,48 +253,34 @@ foreign import reduceMaxImpl :: forall a. Semiring a => Fn3 (Array Int) Boolean 
 reduceMax :: forall a. Semiring a => Array Int -> Boolean -> Tensor a -> Tensor a
 reduceMax axes keepdim t = runFn3 reduceMaxImpl axes keepdim t
 
-
 foreign import reduceLogSumExpImpl :: forall a. Semiring a => Fn3 (Array Int) Boolean (Tensor a) (Tensor a)
 reduceLogSumExp :: forall a. Semiring a => Array Int -> Boolean -> Tensor a -> Tensor a
 reduceLogSumExp axes keepdim t = runFn3 reduceLogSumExpImpl axes keepdim t
 
-
-{-
-instance semiringTensor :: Semiring a => Semiring (Tensor a) where
-   add x y = runFn2 addImpl x y
-   one = ones
-   mul x y = runFn2 addImpl x y
-   zero = zeros
-   -}
 foreign import rank :: forall a. Tensor a -> Int
-
 
 foreign import relu :: Tensor Number -> Tensor Number
 
 foreign import reshapeImpl :: forall a. Fn2 Shape (Tensor a) (Tensor a)
 reshape :: forall a. Shape -> Tensor a -> Tensor a
 reshape shape' t = runFn2 reshapeImpl shape' t
+
 foreign import reverseImpl :: forall a. Fn2 (Array Int) (Tensor a) (Tensor a)
 reverse :: forall a. Array Int -> Tensor a -> Tensor a
 reverse dims t = runFn2 reverseImpl dims t
-
 
 foreign import dotImpl :: forall a. (Semiring a) => Fn2 (Tensor a) (Tensor a) (Tensor a)
 dot :: forall a. (Semiring a) => Tensor a -> Tensor a -> Tensor a
 dot x y = runFn2 dotImpl x y
 
-
-
 foreign import sliceImpl :: forall a. Fn3 (Array Int) (Array Int) (Tensor a) (Tensor a)
 slice :: forall a. Array Int -> Array Int -> Tensor a -> Tensor a
 slice begin end = runFn3 sliceImpl begin end
 
-
-
 foreign import transpose :: forall a. Tensor a -> Tensor a
 
-
 foreign import toString :: forall a. Tensor a -> String
+
 foreign import shape :: forall a. Tensor a -> Shape
 
 foreign import subImpl :: forall a. (Ring a) => Fn2 (Tensor a) (Tensor a) (Tensor a)
