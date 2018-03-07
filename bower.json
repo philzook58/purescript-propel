@@ -1,6 +1,10 @@
 {
   "name": "purescript-propel",
   "homepage": "https://github.com/philzook58/purescript-propel",
+  "repository": {                                                           
+      "type": "git",                                                          
+      "url": "https://github.com/philzook58/purescript-propel.git"            
+    },    
   "authors": [
     "Philip Zucker"
   ],
