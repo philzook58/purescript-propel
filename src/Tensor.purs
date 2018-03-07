@@ -3,7 +3,7 @@ module Data.Tensor
    , DType(..)
    , Shape
    , DeviceType(..)
-   , class HasDType
+   , class HasDType -- Wait I want this internal.
    , _dtype
 
    , eye
@@ -68,17 +68,19 @@ module Data.Tensor
 import Data.ArrayBuffer.Types (Float32Array, ArrayView)
 import Data.Function.Uncurried (Fn2, runFn2, Fn3, runFn3)
 import Prelude ((<<<), class Semiring, class Ring, class Show, class EuclideanRing, show)
-import Type.Proxy (Proxy)
+import Type.Proxy (Proxy(..))
 -- I should delete this instance.
+{-
 instance semiringTensor :: Semiring a => Semiring (Tensor a) where
    add = addT
    zero = zeros [1]
    mul = mulT
    one = ones [1]
-
+-}
+{-
 instance ringTensor :: Ring a => Ring (Tensor a) where
    sub = subT
-
+-}
 -- | Note that some functions have an appended 'T' to avoid clashes with Prelude
 -- | addT, mulT, divT
 
@@ -104,8 +106,8 @@ data DType = UInt8 | Float32 | Bool | Int32 | Error
 instance showDType :: Show DType where
 	show Float32 = "float32" 
 	show Int32 = "int32"
-	show  UInt8 =  "uint8"
-	show Bool ="bool"
+	show UInt8 = "uint8"
+	show Bool = "bool"
 	show Error = "ERROR. DType not found."
 
 foreign import data Tensor :: Type -> Type
@@ -117,9 +119,10 @@ foreign import fillImpl :: forall a. Fn2 a Shape (Tensor a)
 fill :: forall a. a -> Shape -> Tensor a
 fill num shape' = runFn2 fillImpl num shape'
 
-foreign import ones :: forall a. Shape -> Tensor a
---ones' :: forall a. HasDType a => Shape -> Tensor a
---ones' shape' = ones shape' {dtype : (show (_dtype (Proxy :: Proxy a)))}
+--foreign import ones :: forall a. Shape -> Tensor a
+foreign import onesImpl :: forall a. Fn2 Shape {dtype :: String } (Tensor a)
+ones :: forall a. Semiring a => HasDType a => Shape -> Tensor a
+ones shape' = runFn2 onesImpl shape' {dtype : (show (_dtype (Proxy :: Proxy a)))}
 
 foreign import tensor :: forall a. Array a -> Tensor a
 foreign import tensor2 :: forall a. Array (Array a) -> Tensor a
@@ -137,7 +140,6 @@ deltarange start stop delta = runFn3 rangeImpl start stop delta
 
 -- | To be honest I'm a little confused about the Propel gradient api.
 foreign import grad :: (Tensor Number -> Tensor Number) -> (Tensor Number -> Tensor Number)
-
 
 foreign import linspaceImpl :: Fn3 Number Number Int (Tensor Number) -- start stop Num
 linspace :: Number -> Number -> Int -> Tensor Number

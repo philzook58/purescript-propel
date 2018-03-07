@@ -22,7 +22,7 @@ main :: forall e. QC e Unit
 main = do
   -- quickCheck $ forAll genListOfPos \x -> x == (shape $ randn x)
   log $ toString $ zeros [2,2]
-  log $ toString $ ones [2,2]
+  log $ toString $ ones [2,2] :: Tensor Number
   log $ toString $ fill 3.2 [2,3] 
   log $ toString $ eye 7
   log $ toString $ range 1 9
@@ -48,4 +48,5 @@ main = do
   log $ toString $ argmin 0 (eye 3)
   log $ toString $ divT (eye 3) (fill 2.0 [3,3])
   log $ toString $ equal (eye 3) (eye 3) 
+  log $ toString $ (ones [1,4] :: Tensor Number )
 

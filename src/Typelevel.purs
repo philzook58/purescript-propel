@@ -47,7 +47,7 @@ instance shapedD :: (Pos n) => Shaped (D n) where
 reshape :: forall g f n a. Newtype (g (T.Tensor a)) (T.Tensor a) => Newtype (f (T.Tensor a)) (T.Tensor a) => Size f n => Size g n => Shaped g => Proxy2 g -> f (T.Tensor a) -> g (T.Tensor a)
 reshape _ = wrap <<< T.reshape (shape (Proxy2 :: Proxy2 g)) <<< unwrap
 
-ones :: forall f a. Shaped f => T.HasDType a => Newtype (f (T.Tensor a)) (T.Tensor a) => Proxy2 f -> f (T.Tensor a)
+ones :: forall f a. Semiring a => Shaped f => T.HasDType a => Newtype (f (T.Tensor a)) (T.Tensor a) => Proxy2 f -> f (T.Tensor a)
 ones _ = wrap (T.ones (shape (Proxy2 :: Proxy2 f)))
 
 zeros :: forall f a. Shaped f => T.HasDType a => Newtype (f (T.Tensor a)) (T.Tensor a) => Proxy2 f -> f (T.Tensor a)

@@ -28,6 +28,9 @@ exports.tensor2 = propel.T;
 //console.log(propel);
 exports.zeros = propel.zeros; // function(shape) { return propel.zeros(shape) } ;
 exports.ones = propel.ones;
+
+exports.onesImpl = propel.ones;
+
 exports.eye = propel.eye;
 
 exports.linspaceImpl = propel.linspace;
