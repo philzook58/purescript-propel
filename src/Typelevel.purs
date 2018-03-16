@@ -1,6 +1,7 @@
 module Data.Tensor.Typelevel where
 
-import Data.Typelevel.Num (D1, class Pos, toInt)
+import Data.Typelevel.Num.Sets
+import Data.Typelevel.Num (D1, D0, class Pos, toInt, class Succ, class Mul, class Add)
 import Data.Typelevel.Undefined
 import Type.Proxy
 import Prelude  -- ((<>), (<<<), class Semiring, one)
@@ -8,6 +9,7 @@ import Data.Newtype
 import Data.Tensor as T
 import Data.Functor.Compose
 import Data.Foldable
+import Unsafe.Coerce
 
 -- A holder for dimension
 newtype D n a = D a
@@ -15,10 +17,18 @@ derive instance newtypeEmailAddress :: Newtype (D n a) _
 
 -- Raw or Safe rather than newtype
 -- Compose does not let you newtype under it in one fell swoop
-class Unsafe s t | s -> t where
-  extract :: s -> t
-  getinthere :: t -> s
--- Or just do usafe operations
+class GetItOut s t | s -> t where
+  getOut :: s -> t
+  getIn :: t -> s
+-- Or just do unsafe operations. These are NOT for exporting.
+-- They amount to unsafecoerces although only for types that are composed of D and Compose
+
+instance getD :: GetItOut (D n a) a where
+  getOut (D x) = x
+  getIn x = D x
+instance getCompose :: (GetItOut (f (g a)) (g a), GetItOut (g a) a) => GetItOut (Compose f g a) a where
+  getOut (Compose x) = (getOut (getOut x))
+  getIn x = Compose (getIn (getIn x))   
 
 unD (D x) = x
 --newtype DCompose f g a = DCompose (f (g a))
@@ -30,6 +40,7 @@ type DProd n m a = Compose (D n) (D m) a
 infixr 6 type DProd as &*
 
 --class Size (f :: Type -> Type) n
+
 
 --instance sizeDCompose :: (Size f m, Mul n m p, Size g n) => Size (DCompose f g) p
 --instance sizeD :: (Pos n) => Size (D n) n 
@@ -47,7 +58,7 @@ class Shaped f where
 instance shapedDCompose :: (Shaped f, Shaped g) => Shaped (Compose g f) where
    shaped _ = (shaped (Proxy2 :: Proxy2 g)) <> (shaped (Proxy2 :: Proxy2 f))
 
-instance shapedD :: (Pos n) => Shaped (D n) where
+instance shapedD :: (Nat n) => Shaped (D n) where
    shaped _ =  [toInt (undefined :: n)]
 -- I should keep shape as 
 
@@ -69,7 +80,7 @@ shp = Proxy2
 -- OR. Better Yet, 
 {-
 reshape :: forall g f n a. Newtype (g (T.Tensor a)) (T.Tensor a) => Newtype (f (T.Tensor a)) (T.Tensor a) => Size f n => Size g n => Shaped g => Proxy2 g -> f (T.Tensor a) -> g (T.Tensor a)
-reshape _ = wrap <<< T.reshape (shape (Proxy2 :: Proxy2 g)) <<< unwrap
+reshape x = unsafeCoerce x
 -}
 ones :: forall f a. Semiring a => Shaped f => T.HasDType a => Newtype (f (T.Tensor a)) (T.Tensor a) => Proxy2 f -> f (T.Tensor a)
 ones _ = wrap (T.ones (shaped (Proxy2 :: Proxy2 f)))
@@ -89,7 +100,7 @@ mul' :: forall f a. Semiring a => Shaped f => Newtype (f (T.Tensor a)) (T.Tensor
 mul' t1 t2 = wrap (T.mulT (unwrap t1) (unwrap t2))
 
 -- this makes me uncomfortable
-elementwiseBinOp :: (T.Tensor a -> T.Tensor a -> T.Tensor a) -> (f (T.Tensor a) -> f (T.Tensor b) -> f (T.Tensor b))
+elementwiseBinOp :: forall a f. (T.Tensor a -> T.Tensor a -> T.Tensor a) -> (f (T.Tensor a) -> f (T.Tensor a) -> f (T.Tensor a))
 elementwiseBinOp op t1 t2 =  unsafeCoerce (op (unsafeCoerce t1) (unsafeCoerce t2))
 --add'' = elementwiseBinOp T.addT
 
@@ -108,6 +119,27 @@ instance semiringITensor :: (Shaped f, Semiring a) => Semiring (f (T.Tensor a)) 
    mul = mul'
 -}
 
+
+
+class Shaped shape <= Rank shape n | shape -> n
+instance composeRank :: (Rank f n, Rank g m, Add n m p) => Rank (Compose f g) p
+instance rankD :: Nat n => Rank (D n) D1
+class (Nat n, Shaped shape) <= Size shape n | shape -> n
+instance sizeCompose :: (Size f n, Size g m, Mul n m p) => Rank (Compose f g) p
+instance sizeD :: Nat n => Rank (D n) n
+
+class (Nat axis, Shaped f, Shaped f') <= Reduce f axis f' | f axis -> f'
+instance reduceRecurse :: (Shaped f, Shaped g, Reduce g x res, Succ x y) => Reduce (Compose f g) y (Compose f res)
+instance reduceBase1 :: (Shaped f, Nat n) => Reduce (Compose (D n) f) D0 (Compose (D D1) f) 
+instance reduceBase2 :: Nat n => Reduce (D n) D0 (D D1)
+
+
+reduceSum :: forall axis n f g a. Shaped f => Shaped g => Reduce f axis g => axis -> f (T.Tensor a) -> g (T.Tensor a)
+reduceSum _ x =  unsafeCoerce x -- (T.reduceSum [(toInt (undefined :: axis))] (unsafeCoerce x))
+
+reshape :: forall g f n a. Size f n => Size g n => Proxy2 g -> f (T.Tensor a) -> g (T.Tensor a) -- Eq n n
+reshape x = unsafeCoerce (T.reshape [1] (unsafeCoerce x))
+
 {-
 flatten :: Size f n => f (Tensor a) -> D n (Tensor a)
 flatten = wrap <<< T.flatten <<< unwrap
@@ -121,6 +153,9 @@ fill _ x = T.fill x (shape Proxy :: f)  -- (_dtype Proxy :: a)? Unless I already
 -- all the elmentwise and binary ops maintain shape and are basically 
 
 -- Axis Selection is a total pain.
+-- Enforce that axis is 
+
+
 
 -- The tensor problem.
 
